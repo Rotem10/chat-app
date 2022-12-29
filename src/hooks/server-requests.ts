@@ -1,25 +1,20 @@
 import { Message } from '../types/message';
-import { mockUsers } from '../assets/mockUsers'; // todo: remove this line after server implementation
+// todo: remove this line after server implementation
 
-const endpoint = '../assets/'; // todo: add endpoint (server) address (starting with http://)
-
+const endpoint = 'http://localhost:3000'; // todo: add endpoint (server) address (starting with http://)
 
 /**
  * GET Request to get the list of messages
  **/
 export async function getMessages() {
   // todo: replace this with fetch to get the messages from the server
-  const { mockMessages } = await import(`${endpoint}/mockMessages`);
+  const messages = await fetch(`${endpoint}/messages`).then((res) =>
+    res.json()
+  );
 
   // todo: this should be implemented in the server. Chat Messages should already have the authors' names.
   // todo: remove this mapping when getting the data from the server
-  const mockMessagesWithNames = mockMessages.map((message: Message) => {
-    const author = mockUsers.find(user => user.id === message.authorId);
-    const authorName = author && author.name;
-    return { ...message, authorName };
-  });
-
-  return mockMessagesWithNames;
+  return messages;
 }
 
 /**
@@ -27,10 +22,9 @@ export async function getMessages() {
  **/
 export async function getUsers() {
   // todo: replace this with fetch to get the user list from the server
-  const { mockUsers } = await import(`${endpoint}/mockUsers`);
-  return mockUsers;
+  const users = await fetch(`${endpoint}/users`).then((res) => res.json());
+  return users;
 }
-
 
 /**
  * GET request to get the full details of a user
@@ -39,8 +33,10 @@ export async function getUserDetails(userId: number) {
   // todo: replace this with fetch to get the user details from the server.
   //  For mocking example, we're calling an external JSON service.
   //  You can use mockUserDetails.ts for the list of user details in the server.
-  const res = await fetch(`https://jsonplaceholder.typicode.com/users?id=${userId}`);
-  return (await res.json())[0];
+  const userDetails = await fetch(`${endpoint}/id=${userId}`).then((res) =>
+    res.json()
+  );
+  return userDetails;
 }
 
 /**
@@ -48,11 +44,28 @@ export async function getUserDetails(userId: number) {
  **/
 export async function addNewMessage(message: Message) {
   // todo: implement sending a new message to the server
+
+  const response = await fetch(`${endpoint}/new-message`, {
+    method: 'POST',
+    body: JSON.stringify(message),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then((res) => res.text());
+  return response;
 }
 
 /**
  * POST request to change the user's like of a message
  **/
-export async function changeMessageLikes(messageId: number, userId: number, like: boolean) {
+export async function changeMessageLikes(messageId: number, userId: number) {
   // todo: implement sending a rquest to change the like of a message by the user
+  const response = await fetch(`${endpoint}/change-like`, {
+    method: 'POST',
+    body: JSON.stringify({ messageId, userId }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then((res) => res.text());
+  return response;
 }
